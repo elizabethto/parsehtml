@@ -11,3 +11,6 @@
   (prn (.html element)))
  
 (for [element elements] element)
+
+(dotimes [element (.size elements)] (prn element))
+
