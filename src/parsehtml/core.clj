@@ -6,3 +6,6 @@
 (def ^org.jsoup.nodes.Element navDivTag (.getElementById document "menu"))
 (def ^org.jsoup.select.Elements elements (.getElementsByClass navDivTag "name"))
 (def ^String menuItems (.html elements))
+(doseq [element elements]
+  (prn elements)
+  )
