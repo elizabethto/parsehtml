@@ -7,5 +7,7 @@
 (def ^org.jsoup.select.Elements elements (.getElementsByClass navDivTag "name"))
 (def ^String menuItems (.html elements))
 (doseq [element elements]
-  (prn element)
-  )
+
+  (prn (.html element)))
+ 
+(for [element elements] element)
