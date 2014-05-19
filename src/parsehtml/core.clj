@@ -5,21 +5,12 @@
 (def ^org.jsoup.nodes.Document document (.get httpConnection))
 (def ^org.jsoup.nodes.Element navDivTag (.getElementById document "menu"))
 
-(def allText (.text navDivTag))
-
-(doseq [element allText]
-  (prn (element)))
-
 (def ^org.jsoup.select.Elements elements (.getElementsByClass navDivTag "name"))
-(def ^String menuItems (.html elements))
 
-(def x (.getAllElements navDivTag))
-
+(def menu (list))
 (doseq [element elements]
-  (prn (.html element)))
- 
-(for [element elements] element)
+    (def menu (conj menu (.html element))))
 
-(dotimes [element (.size elements)] (prn element))
+(println "hello")
 
-(print 1)
+
