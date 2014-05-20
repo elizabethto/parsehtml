@@ -16,7 +16,6 @@
 (doseq [element priceElements]
   (def price (conj price (.html element))))
 
-(doseq [menuElement menu]
-  (prn (assoc menuMap :name menuElement)))
+(def namePrice (map list menu price))
+(prn namePrice)
 
-(println "hello world")
