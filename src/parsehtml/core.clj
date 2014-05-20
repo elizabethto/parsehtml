@@ -5,12 +5,18 @@
 (def ^org.jsoup.nodes.Document document (.get httpConnection))
 (def ^org.jsoup.nodes.Element navDivTag (.getElementById document "menu"))
 
-(def ^org.jsoup.select.Elements elements (.getElementsByClass navDivTag "name"))
+(def ^org.jsoup.select.Elements nameElements (.getElementsByClass navDivTag "name"))
+(def ^org.jsoup.select.Elements priceElements (.getElementsByClass navDivTag "price"))
 
-(def menu (list))
-(doseq [element elements]
-    (def menu (conj menu (.html element))))
+(def menu [])
+(doseq [element nameElements]
+  (def menu (conj menu (.html element))))
 
-(println "hello")
+(def price [])
+(doseq [element priceElements]
+  (def price (conj price (.html element))))
 
+(doseq [menuElement menu]
+  (prn (assoc menuMap :name menuElement)))
 
+(println "hello world")
