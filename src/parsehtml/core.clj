@@ -18,7 +18,7 @@
 
 (def myMap (zipmap menu price))
 
-(myMap "Mango")
+(myMap "Mango Pudding")
 
 
 (def namePrice (map list menu price))
