@@ -16,6 +16,11 @@
 (doseq [element priceElements]
   (def price (conj price (.html element))))
 
+(def myMap (zipmap menu price))
+
+(myMap "Mango")
+
+
 (def namePrice (map list menu price))
 (prn namePrice)
 
