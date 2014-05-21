@@ -24,3 +24,23 @@
 (def namePrice (map list menu price))
 (prn namePrice)
 
+
+(def menuMap {})
+(def menuList [])
+
+(doseq [menuElement menu]
+  (def menuMap (:name menuElement))
+  (def menuList (conj menuList menuMap)))
+
+(def priceMap {})
+(def priceList [])
+
+(doseq [priceElement price]
+  (def priceMap (:price priceElement))
+  (def priceList (conj priceList priceMap)))
+
+(doseq [priceElement price]
+  (prn priceElement))
+
+
+
