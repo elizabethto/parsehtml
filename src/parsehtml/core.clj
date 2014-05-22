@@ -16,31 +16,34 @@
 (doseq [element priceElements]
   (def price (conj price (.html element))))
 
-(def myMap (zipmap menu price))
-
-(myMap "Mango Pudding")
-
-
-(def namePrice (map list menu price))
-(prn namePrice)
-
-
 (def menuMap {})
 (def menuList [])
 
 (doseq [menuElement menu]
-  (def menuMap (:name menuElement))
+  (def menuMap (assoc menuMap :name menuElement))
   (def menuList (conj menuList menuMap)))
 
 (def priceMap {})
 (def priceList [])
 
 (doseq [priceElement price]
-  (def priceMap (:price priceElement))
+  (def priceMap (assoc priceMap :price priceElement))
   (def priceList (conj priceList priceMap)))
 
-(doseq [priceElement price]
-  (prn priceElement))
+(def menuMap {})
+
+(def menuMap (zipmap menuList priceList))
+
+(def menuMap (map list (keys menuMap) (vals menuMap)))
+
+(def finalMenu [])
+
+(doseq [item menuMap]
+  (def tempItem (merge (last item) (first item)))
+  (def finalMenu (conj finalMenu tempItem)))
+
+(spit "menu.txt" (apply str finalMenu))
+
 
 
 
