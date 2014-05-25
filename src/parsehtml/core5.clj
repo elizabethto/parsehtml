@@ -1,8 +1,7 @@
 (ns parsehtml.core)
 (import 'org.jsoup.Jsoup)
 
-;; Creates a list of the menu categories i.e.
-;;["Appetizers" "Dim Sum, Snacks &amp; Appetizers" "Soups"]
+
 (defn getCategory [seqFullMenu]
   (def categoryList [])
 
@@ -12,8 +11,6 @@
     (def categoryList (conj categoryList categoryName)))
   categoryList)
 
-;; Puts the menu categories into a list of a map of keywords i.e.
-;;[{:name "Appetizers"}{:name "Dim Sum, Snacks &amp; Appetizers"} {:name "Soups"}]
 (defn makeKeyword [listToChange]
   (def tempMap {})
   (def tempList [])
@@ -23,23 +20,21 @@
     (def tempList (conj tempList tempMap)))
   tempList)
 
-;;create item name list for category
 (defn getItemName [nameElements]
   (def itemNameList [])
   (doseq [element nameElements]
-    (def itemNameList (conj itemNameList (.html element)))
-    itemNameList))
+    (def temp (.html element))
+    (def itemNameList (conj itemNameList temp)))
+  itemNameList)
 
-;;create item price list for category
 (defn getItemPrice [priceElements]
   (def itemPriceList [])
   (doseq [element priceElements]
     (def tempStrPrice (subs (.html element) 1))
     (def intPrice (Double/parseDouble tempStrPrice))
-    (def itemPriceList (conj itemPriceList intPrice))
-    itemPriceList))
+    (def itemPriceList (conj itemPriceList intPrice)))
+  itemPriceList)
 
-;;create keywords for items in category
 (defn makeItemKeywords [itemList detail]
   (def tempMap {})
   (def itemMap [])
@@ -48,7 +43,6 @@
     (def itemMap (conj itemMap tempMap)))
   itemMap)
 
-;;create map of items in category
 (defn makeItemMap [itemNameMap itemPriceMap]
   (def menuMap {})
   (def menuMap (zipmap itemNameMap itemPriceMap))
@@ -61,7 +55,7 @@
   finalMenu)
 
 ;;Functions defined above
-;;Below is main
+
 
 (def httpConnection (Jsoup/connect "http://www.allmenus.com/ny/new-york/322071-xo-cafe-and-grill/menu/"))
 (def document (.get httpConnection))
@@ -73,9 +67,8 @@
 
 (def categoryKeyMap (makeKeyword categoryFound))
 
-(def fullMenu [])
+(def fullMenu {})
 
-;; creates the whole menu with categories and category items and prices
 (dotimes [i 18]
 
   (def menuCategory (nth seqFullMenu i))
@@ -94,9 +87,9 @@
   (def whichCategory (categoryKeyMap i))
   (def categoryKey (keys whichCategory))
   (def singleCategory (assoc-in whichCategory categoryKey categoryItemMap))
-
- (def fullMenu (conj fullMenu singleCategory))
+  (prn singleCategory)
+  (println "HELLO WORLD!!!!!!!!!!!!!!")
   
- (prn "HELLO WORLD!!!!"))
-
+  (def fullMenu (merge fullMenu singleCategory))
+  )
 
