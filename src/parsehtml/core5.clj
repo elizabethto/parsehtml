@@ -57,7 +57,7 @@
 ;;Functions defined above
 
 
-(def httpConnection (Jsoup/connect "http://www.allmenus.com/ny/new-york/322071-xo-cafe-and-grill/menu/"))
+(def httpConnection (Jsoup/connect "http://www.allmenus.com/ny/new-york/2025-chinatown-east/menu/"))
 (def document (.get httpConnection))
 (def navDivTag (.getElementById document "menu"))
 (def fullMenu (.children navDivTag))
@@ -69,7 +69,7 @@
 
 (def fullMenu {})
 
-(dotimes [i 18]
+(dotimes [i (.size seqFullMenu)]
 
   (def menuCategory (nth seqFullMenu i))
   
@@ -87,9 +87,9 @@
   (def whichCategory (categoryKeyMap i))
   (def categoryKey (keys whichCategory))
   (def singleCategory (assoc-in whichCategory categoryKey categoryItemMap))
-  (prn singleCategory)
-  (println "HELLO WORLD!!!!!!!!!!!!!!")
+
   
   (def fullMenu (merge fullMenu singleCategory))
+  (spit "fullmenu.txt" (apply str fullMenu))
   )
 
