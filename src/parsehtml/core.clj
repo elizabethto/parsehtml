@@ -1,48 +1,105 @@
 (ns parsehtml.core)
 (import 'org.jsoup.Jsoup)
 
-(def ^org.jsoup.Connection httpConnection (Jsoup/connect "http://www.allmenus.com/ny/new-york/322071-xo-cafe-and-grill/menu/"))
-(def ^org.jsoup.nodes.Document document (.get httpConnection))
-(def ^org.jsoup.nodes.Element navDivTag (.getElementById document "menu"))
 
-(def ^org.jsoup.select.Elements nameElements (.getElementsByClass navDivTag "name"))
-(def ^org.jsoup.select.Elements priceElements (.getElementsByClass navDivTag "price"))
+(defn getCategory [seqFullMenu]
+  (def categoryList [])
 
-(def menu [])
-(doseq [element nameElements]
-  (def menu (conj menu (.html element))))
+  (doseq [element seqFullMenu]
+    (def findCategory (.select element "h3"))
+    (def categoryName (.html findCategory))
+    (def categoryList (conj categoryList categoryName)))
+  categoryList)
 
-(def price [])
-(doseq [element priceElements]
-  (def price (conj price (.html element))))
+(defn makeKeyword [listToChange]
+  (def tempMap {})
+  (def tempList [])
 
-(def menuMap {})
-(def menuList [])
+  (doseq [element listToChange]
+    (def tempMap {(keyword element) nil})
+    (def tempList (conj tempList tempMap)))
+  tempList)
 
-(doseq [menuElement menu]
-  (def menuMap (assoc menuMap :name menuElement))
-  (def menuList (conj menuList menuMap)))
+(defn getItemName [nameElements]
+  (def itemNameList [])
+  (doseq [element nameElements]
+    (def temp (.html element))
+    (def itemNameList (conj itemNameList temp)))
+  itemNameList)
 
-(def priceMap {})
-(def priceList [])
+(defn getItemPrice [priceElements]
+  (def itemPriceList [])
+  (doseq [element priceElements]
+    (def tempStrPrice (subs (.html element) 1))
+    (def intPrice (Double/parseDouble tempStrPrice))
+    (def itemPriceList (conj itemPriceList intPrice)))
+  itemPriceList)
 
-(doseq [priceElement price]
-  (def priceMap (assoc priceMap :price priceElement))
-  (def priceList (conj priceList priceMap)))
+(defn makeItemKeywords [itemList detail]
+  (def tempMap {})
+  (def itemMap [])
+  (doseq [element itemList]
+    (def tempMap (assoc tempMap (keyword detail) element))
+    (def itemMap (conj itemMap tempMap)))
+  itemMap)
 
-(def menuMap {})
+(defn makeItemMap [itemNameMap itemPriceMap]
+  (def menuMap {})
+  (def menuMap (zipmap itemNameMap itemPriceMap))
+  (def menuMap (map list (keys menuMap) (vals menuMap)))
 
-(def menuMap (zipmap menuList priceList))
-
-(def menuMap (map list (keys menuMap) (vals menuMap)))
-
-(def finalMenu [])
-
-(doseq [item menuMap]
-  (def tempItem (merge (last item) (first item)))
-  (def finalMenu (conj finalMenu tempItem)))
-
-(spit "menu.txt" (apply str finalMenu))
+  (def finalMenu [])
+  (doseq [item menuMap]
+    (def tempItem (merge (last item) (first item)))
+    (def finalMenu (conj finalMenu tempItem)))
+  finalMenu)
 
 
-{:appetizers [{:name "salmon" :price 10.95} {:name "chicken wings" :price 6.95}] :dimsum [{:name "shrimp dumpling" :price 3.95} {:name "turnip cake" :price 1.95}] :beverages [{:name "soda" :price 1.25} {:name "green tea" :price 1.25}] }
+
+{defn getRestaurantMenu [restaurantURL]
+
+ (def httpConnection (Jsoup/connect restaurantURL))
+
+ (def document (.get httpConnection))
+ (def navDivTag (.getElementById document "menu"))
+ (def fullMenu (.children navDivTag))
+ (def seqFullMenu (seq fullMenu))
+
+ (def categoryFound (getCategory seqFullMenu))
+
+ (def categoryKeyMap (makeKeyword categoryFound))
+
+ (def fullMenu {})
+
+ (dotimes [i (.size seqFullMenu)]
+
+   (def menuCategory (nth seqFullMenu i))
+  
+   (def nameElements (.getElementsByClass menuCategory "name"))
+   (def nameList (getItemName nameElements))
+
+   (def priceElements (.getElementsByClass menuCategory "price"))
+   (def priceList (getItemPrice priceElements)) 
+
+   (def itemNameMap (makeItemKeywords nameList "name"))
+   (def itemPriceMap (makeItemKeywords priceList "price"))
+
+   (def categoryItemMap (makeItemMap itemNameMap itemPriceMap))
+
+   (def whichCategory (categoryKeyMap i))
+   (def categoryKey (keys whichCategory))
+   (def singleCategory (assoc-in whichCategory categoryKey categoryItemMap))
+
+  
+   (def fullMenu (merge fullMenu singleCategory))
+   (spit "fullmenu.txt" (apply str fullMenu)))
+
+ fullMenu}
+
+
+{defn parser-menu [restaurantURL]
+
+ (def menu (getRestaurantMenu restaurantURL))
+ menu
+ }
+
