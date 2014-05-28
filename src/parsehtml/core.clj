@@ -55,8 +55,7 @@
   finalMenu)
 
 
-
-{defn getRestaurantMenu [restaurantURL]
+(defn getRestaurantMenu [restaurantURL]
 
  (def httpConnection (Jsoup/connect restaurantURL))
 
@@ -94,12 +93,11 @@
    (def fullMenu (merge fullMenu singleCategory))
    (spit "fullmenu.txt" (apply str fullMenu)))
 
- fullMenu}
+ fullMenu)
 
 
-{defn parser-menu [restaurantURL]
+(defn parser-menu [restaurantURL]
 
  (def menu (getRestaurantMenu restaurantURL))
- menu
- }
 
+ menu)
