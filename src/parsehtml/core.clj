@@ -101,3 +101,9 @@
  (def menu (getRestaurantMenu restaurantURL))
 
  menu)
+
+(defn -main [& args]
+  (let [url (first args)
+        edn (parser-menu url)]
+    println edn
+    ))
