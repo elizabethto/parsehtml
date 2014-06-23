@@ -48,56 +48,65 @@
   (def menuMap (zipmap itemNameMap itemPriceMap))
   (def menuMap (map list (keys menuMap) (vals menuMap)))
 
+
   (def finalMenu [])
   (doseq [item menuMap]
-    (def tempItem (merge (last item) (first item)))
+    (def itemSkuMap {:product/sku (rand-int 99)})
+    (def tempItem (merge (last item) (first item) itemSkuMap))
     (def finalMenu (conj finalMenu tempItem)))
+
   finalMenu)
 
 
 (defn getRestaurantMenu [restaurantURL]
 
- (def httpConnection (Jsoup/connect restaurantURL))
+  (def httpConnection (Jsoup/connect restaurantURL))
 
- (def document (.get httpConnection))
- (def navDivTag (.getElementById document "menu"))
- (def fullMenu (.children navDivTag))
- (def seqFullMenu (seq fullMenu))
+  (def document (.get httpConnection))
+  (def navDivTag (.getElementById document "menu"))
+  (def fullMenu (.children navDivTag))
+  (def seqFullMenu (seq fullMenu))
 
- (def categoryFound (getCategory seqFullMenu))
+  (def categoryFound (getCategory seqFullMenu))
 
- (def categoryKeyMap (makeKeyword categoryFound))
+  (def categoryKeyMap (makeKeyword categoryFound))
 
- (def fullMenu {})
+  (def fullMenu {})
 
- (dotimes [i (.size seqFullMenu)]
+  (dotimes [i (.size seqFullMenu)]
 
-   (def menuCategory (nth seqFullMenu i))
-  
-   (def nameElements (.getElementsByClass menuCategory "name"))
-   (def nameList (getItemName nameElements))
+    (def menuCategory (nth seqFullMenu i))
 
-   (def priceElements (.getElementsByClass menuCategory "price"))
-   (def priceList (getItemPrice priceElements)) 
+    (def nameElements (.getElementsByClass menuCategory "name"))
+    (def nameList (getItemName nameElements))
 
-   (def itemNameMap (makeItemKeywords nameList "name"))
-   (def itemPriceMap (makeItemKeywords priceList "price"))
+    (def priceElements (.getElementsByClass menuCategory "price"))
+    (def priceList (getItemPrice priceElements))
 
-   (def categoryItemMap (makeItemMap itemNameMap itemPriceMap))
+    (def itemNameMap (makeItemKeywords nameList "product/name"))
+    (def itemPriceMap (makeItemKeywords priceList "product/price"))
 
-   (def whichCategory (categoryKeyMap i))
-   (def categoryKey (keys whichCategory))
-   (def singleCategory (assoc-in whichCategory categoryKey categoryItemMap))
+    (def categoryItemMap (makeItemMap itemNameMap itemPriceMap))
 
-  
-   (def fullMenu (merge fullMenu singleCategory))
-   (spit "fullmenu.txt" (apply str fullMenu)))
+    (def productMapX {:category/products categoryItemMap})
+    (def categoryX {:category/name (categoryFound i)})
+    (def ednCategory (merge productMapX categoryX))
+    (println ednCategory)
+    (println "HELLO WORLD")
 
- fullMenu)
+    (def whichCategory (categoryKeyMap i))
+    (def categoryKey (keys whichCategory))
+    (def singleCategory (assoc-in whichCategory categoryKey categoryItemMap))
+
+
+    (def fullMenu (merge fullMenu ednCategory))
+    (spit "fullmenu.txt" (apply str fullMenu)))
+
+  fullMenu)
 
 
 (defn parser-menu [restaurantURL]
 
- (def menu (getRestaurantMenu restaurantURL))
+  (def menu (getRestaurantMenu restaurantURL))
 
- menu)
+    menu)
