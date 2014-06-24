@@ -1,0 +1,12 @@
+(ns parsehtml.core)
+(import 'org.jsoup.Jsoup)
+
+
+
+(defn pull-menu [restaurant-url]
+  (let [httpConnection (Jsoup/connect restaurant-url)]
+    (println httpConnection)))
+
+(defn parser-menu2 [restaurant-url]
+  (def pull-menu (restaurant-url)))
+

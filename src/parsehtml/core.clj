@@ -9,7 +9,9 @@
     (def findCategory (.select element "h3"))
     (def categoryName (.html findCategory))
     (def categoryList (conj categoryList categoryName)))
+  (println categoryList)
   categoryList)
+
 
 (defn makeKeyword [listToChange]
   (def tempMap {})
@@ -25,6 +27,7 @@
   (doseq [element nameElements]
     (def temp (.html element))
     (def itemNameList (conj itemNameList temp)))
+  (println itemNameList)
   itemNameList)
 
 (defn getItemPrice [priceElements]
@@ -58,14 +61,16 @@
   finalMenu)
 
 
+
+
+
 (defn getRestaurantMenu [restaurantURL]
 
   (def httpConnection (Jsoup/connect restaurantURL))
-
   (def document (.get httpConnection))
   (def navDivTag (.getElementById document "menu"))
   (def fullMenu (.children navDivTag))
-  (def seqFullMenu (seq fullMenu))
+    (def seqFullMenu (seq fullMenu))
 
   (def categoryFound (getCategory seqFullMenu))
 
@@ -91,7 +96,7 @@
     (def productMapX {:category/products categoryItemMap})
     (def categoryX {:category/name (categoryFound i)})
     (def ednCategory (merge productMapX categoryX))
-    (println ednCategory)
+  ;  (println ednCategory)
     (println "HELLO WORLD")
 
     (def whichCategory (categoryKeyMap i))
@@ -103,6 +108,7 @@
     (spit "fullmenu.txt" (apply str fullMenu)))
 
   fullMenu)
+
 
 
 (defn parser-menu [restaurantURL]
