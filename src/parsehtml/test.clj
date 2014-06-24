@@ -2,13 +2,14 @@
 (import 'org.jsoup.Jsoup)
 
 
+(defn extract-category-name [element]
+  (let [h3 (.select element "h3")
+        category-name (.html h3)]
+    category-name))
 
-(defn get-category [full-menu]
-  (let [category-list []]
-    (for [element full-menu]
-      (let [find-category (.select element "h3")
-            category-name (.html find-category)
-            category-list (conj category-list category-name)]))))
+(defn get-category [menu-seq]
+  (map extract-category-name menu-seq))
+
 
 (defn get-item-names [category]
   (let [item-names (.getElementsByClass category "name")
