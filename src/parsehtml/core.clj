@@ -111,8 +111,3 @@
 
 
 
-(defn parser-menu [restaurantURL]
-
-  (def menu (getRestaurantMenu restaurantURL))
-
-    menu)
