@@ -48,9 +48,9 @@
 (defn parse-menu [restaurant-url]
   (let [full-menu (pull-menu restaurant-url)
         menu-category (get-category full-menu)
-        full-menu-map {}]
-    (println menu-category)
-    (dotimes [i (.size full-menu)]
+        num-categories (.size full-menu)
+        categories (range 0 num-categories)]
+    (for [i categories] 
       (let [category (nth full-menu i)
             category-item-names (get-item-names category)
             category-item-prices (get-item-prices category)
@@ -59,7 +59,9 @@
             item-map (map merge-name-price item-name-map item-price-map)
             full-menu-map item-map]
         (println "NEW CATEGORY")
-        (println item-map)))))
+        (println item-map)
+        (spit "yay.txt" (apply str item-map))
+        item-map))))
 
 
 
