@@ -2,22 +2,41 @@
 (import 'org.jsoup.Jsoup)
 
 
-(defn extract-category-name [element]
-  (let [h3 (.select element "h3")
-        category-name (.html h3)]
-    category-name))
-
-(defn get-category [menu-seq]
-  (map extract-category-name menu-seq))
-
+(defn get-category [full-menu]
+  (for [element full-menu]
+    (let [find-category (.select element "h3")
+          category-name (.html find-category)]
+      category-name)))
 
 (defn get-item-names [category]
   (let [item-names (.getElementsByClass category "name")
-        item-name-list []]
+        ]
     (for [element item-names]
       (let [item-name (.html element)
-            item-name-list (conj item-name-list item-name)]
+            item-name-list item-name]
         item-name-list))))
+
+(defn get-item-prices [category]
+  (let [item-prices (.getElementsByClass category "price")]
+    (for [element item-prices]
+      (let [item-price-str (subs (.html element) 1)
+            int-price (Double/parseDouble item-price-str)
+            item-price-list int-price ]
+        item-price-list))))
+
+(defn make-item-name-map [item-names]
+  (let [temp-map {:product/name item-names}]
+    temp-map))
+
+(defn make-item-price-map [item-prices]
+  (let [temp-map {:product/price item-prices}]
+    temp-map))
+
+(defn merge-name-price [item-name-map item-price-map]
+  (let [item-name item-name-map
+        item-price item-price-map
+        one-map (merge item-price item-name)]
+    one-map))
 
 (defn pull-menu [restaurant-url]
   (let [ http-connection (Jsoup/connect restaurant-url)
@@ -28,13 +47,19 @@
 
 (defn parse-menu [restaurant-url]
   (let [full-menu (pull-menu restaurant-url)
-        menu-category (get-category full-menu)]
+        menu-category (get-category full-menu)
+        full-menu-map {}]
     (println menu-category)
     (dotimes [i (.size full-menu)]
       (let [category (nth full-menu i)
             category-item-names (get-item-names category)
-            ]
-        (println category-item-names)
-        ))))
+            category-item-prices (get-item-prices category)
+            item-name-map (map make-item-name-map category-item-names)
+            item-price-map (map make-item-price-map category-item-prices)
+            item-map (map merge-name-price item-name-map item-price-map)
+            full-menu-map item-map]
+        (println "NEW CATEGORY")
+        (println item-map)))))
+
 
 
