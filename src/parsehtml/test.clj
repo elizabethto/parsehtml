@@ -60,7 +60,7 @@
             full-menu-map item-map]
         (println "NEW CATEGORY")
         (println item-map)
-        (spit "yay.txt" (apply str item-map))
+        (spit "fullmenu.txt" (apply str item-map))
         item-map))))
 
 

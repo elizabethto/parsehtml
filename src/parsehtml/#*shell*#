@@ -1021,6 +1021,10 @@ parsehtml.core=>  (spit "yay.txt (apply str my-menu))
             #_=> \
 
 RuntimeException EOF while reading string  clojure.lang.Util.runtimeException (Util.java:219)
-parsehtml.core=> (spit "yay.txt" (apply str my-menu))
+parsehtml.core=> (spit "yay.txt" (pr-str my-menu))
+nil
+parsehtml.core=> (class my-menu)
+clojure.lang.LazySeq
+parsehtml.core=> (spit "yay.txt" (pr-str my-menu))
 nil
 parsehtml.core=> 
