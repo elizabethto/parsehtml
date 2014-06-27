@@ -2,112 +2,123 @@
 (import 'org.jsoup.Jsoup)
 
 
-(defn getCategory [seqFullMenu]
-  (def categoryList [])
+(defn get-category [full-menu]
+  (for [element full-menu]
+    (let [find-category (.select element "h3")
+          category-name (.html find-category)]
+      category-name)))
 
-  (doseq [element seqFullMenu]
-    (def findCategory (.select element "h3"))
-    (def categoryName (.html findCategory))
-    (def categoryList (conj categoryList categoryName)))
-  (println categoryList)
-  categoryList)
+(defn get-item-names [category]
+  (let [item-names (.getElementsByClass category "name")
+        ]
+    (for [element item-names]
+      (let [item-name (.html element)
+            item-name-list item-name]
+        item-name-list))))
 
+(defn get-item-prices [category]
+  (let [item-prices (.getElementsByClass category "price")]
+    (for [element item-prices]
+      (let [item-price-str (subs (.html element) 1)
+            int-price (Double/parseDouble item-price-str)
+            item-price-list int-price ]
+        item-price-list))))
 
-(defn makeKeyword [listToChange]
-  (def tempMap {})
-  (def tempList [])
+(defn make-item-name-map [item-names]
+  (let [temp-map {:product/name item-names}]
+    temp-map))
 
-  (doseq [element listToChange]
-    (def tempMap {(keyword element) nil})
-    (def tempList (conj tempList tempMap)))
-  tempList)
+(defn make-item-price-map [item-prices]
+  (let [temp-map {:product/price item-prices}]
+    temp-map))
 
-(defn getItemName [nameElements]
-  (def itemNameList [])
-  (doseq [element nameElements]
-    (def temp (.html element))
-    (def itemNameList (conj itemNameList temp)))
-  (println itemNameList)
-  itemNameList)
+(defn merge-name-price [item-name-map item-price-map]
+  (let [item-name item-name-map
+        item-price item-price-map
+        one-map (merge item-price item-name (get-db-format))]
+    one-map))
 
-(defn getItemPrice [priceElements]
-  (def itemPriceList [])
-  (doseq [element priceElements]
-    (def tempStrPrice (subs (.html element) 1))
-    (def intPrice (Double/parseDouble tempStrPrice))
-    (def itemPriceList (conj itemPriceList intPrice)))
-  itemPriceList)
+(defn connect-url [restaurant-url]
+  (let [http-connection (Jsoup/connect restaurant-url)
+        website (.get http-connection)]
+    website))
 
-(defn makeItemKeywords [itemList detail]
-  (def tempMap {})
-  (def itemMap [])
-  (doseq [element itemList]
-    (def tempMap (assoc tempMap (keyword detail) element))
-    (def itemMap (conj itemMap tempMap)))
-  itemMap)
-
-(defn makeItemMap [itemNameMap itemPriceMap]
-  (def menuMap {})
-  (def menuMap (zipmap itemNameMap itemPriceMap))
-  (def menuMap (map list (keys menuMap) (vals menuMap)))
+(defn pull-menu [restaurant-url]
+  (let [website (connect-url restaurant-url)
+        menu-tag (.getElementById website "menu")
+        full-menu (.children menu-tag)]
+    (seq full-menu)))
 
 
-  (def finalMenu [])
-  (doseq [item menuMap]
-    (def itemSkuMap {:product/sku (rand-int 99)})
-    (def tempItem (merge (last item) (first item) itemSkuMap))
-    (def finalMenu (conj finalMenu tempItem)))
-
-  finalMenu)
-
-
-
-
-
-(defn getRestaurantMenu [restaurantURL]
-
-  (def httpConnection (Jsoup/connect restaurantURL))
-  (def document (.get httpConnection))
-  (def navDivTag (.getElementById document "menu"))
-  (def fullMenu (.children navDivTag))
-    (def seqFullMenu (seq fullMenu))
-
-  (def categoryFound (getCategory seqFullMenu))
-
-  (def categoryKeyMap (makeKeyword categoryFound))
-
-  (def fullMenu {})
-
-  (dotimes [i (.size seqFullMenu)]
-
-    (def menuCategory (nth seqFullMenu i))
-
-    (def nameElements (.getElementsByClass menuCategory "name"))
-    (def nameList (getItemName nameElements))
-
-    (def priceElements (.getElementsByClass menuCategory "price"))
-    (def priceList (getItemPrice priceElements))
-
-    (def itemNameMap (makeItemKeywords nameList "product/name"))
-    (def itemPriceMap (makeItemKeywords priceList "product/price"))
-
-    (def categoryItemMap (makeItemMap itemNameMap itemPriceMap))
-
-    (def productMapX {:category/products categoryItemMap})
-    (def categoryX {:category/name (categoryFound i)})
-    (def ednCategory (merge productMapX categoryX))
-  ;  (println ednCategory)
-    (println "HELLO WORLD")
-
-    (def whichCategory (categoryKeyMap i))
-    (def categoryKey (keys whichCategory))
-    (def singleCategory (assoc-in whichCategory categoryKey categoryItemMap))
+(defn get-address-map [info]
+  (let [address-line1 (.text (.get info 1))
+        address-line1-map {:address/line1  address-line1}
+        city (.text (.get info 2))
+        city-map {:address/city city}
+        state (.text (.get info 3))
+        state-map {:address/state state}
+        zipcode (.text (.get info 4))
+        zipcode-map {:address/zipcode zipcode}
+        db-format (get-db-format)
+        address-map (merge zipcode-map state-map city-map address-line1-map db-format)]
+    address-map))
 
 
-    (def fullMenu (merge fullMenu ednCategory))
-    (spit "fullmenu.txt" (apply str fullMenu)))
+(defn get-store-info [restaurant-url]
+  (let [website (connect-url restaurant-url)
+        store-name-tag (.select website "h1")
+        store-name (.text store-name-tag)
+        store-name-map {:store/name store-name}
+        info-tag (.getElementById website "primary_info")
+        info (.select info-tag "[itemprop]")
+        address-map (get-address-map info)
+        final-address-map {:address address-map} 
+        phone (.text (.last info))
+        phone-map {:phone phone}
+        all-info (merge phone-map final-address-map store-name-map)]
+    all-info))
 
-  fullMenu)
+
+(defn get-db-format []
+  (let [db-map-format {:db/id  "#db/id[:db.part/user]"}]
+    db-map-format))
+
+
+(defn get-menu-info [restaurant-url]
+  (let [full-menu (pull-menu restaurant-url)
+        menu-category (get-category full-menu)
+        num-categories (.size full-menu)
+        categories (range 0 num-categories)]
+    (for [i categories] 
+      (let [category (nth full-menu i)
+            category-name-map {:category/name (nth menu-category i)}
+            category-item-names (get-item-names category)
+            category-item-prices (get-item-prices category)
+            item-name-map (map make-item-name-map category-item-names)
+            item-price-map (map make-item-price-map category-item-prices)
+            item-map (map merge-name-price item-name-map item-price-map)
+            vector-map (into [] item-map)
+            category-product-map {:category/products vector-map}
+            db-format (get-db-format)
+            all-menu (merge category-product-map category-name-map db-format)]
+       
+        all-menu))))
+
+
+(defn store-edn-file [restaurant-url]
+  (let [store-info-map (get-store-info restaurant-url)
+        catolog-info (get-menu-info restaurant-url)
+        catolog-info-map (into [] catolog-info)
+        catolog-map {:catalog catolog-info-map}
+        db-format (get-db-format)
+        edn-file-map (merge catolog-map store-info-map db-format)
+;        edn-file-string (str edn-file-map)
+;        edn-temp-one (clojure.string/replace edn-file-string #"\"#" "#")
+;        edn-temp-two (clojure.string/replace edn-temp-one #"user]\"" "user]") 
+;        edn-final (clojure.string/replace edn-temp-two #"," " ")
+        ]
+    (spit "newmenu.txt" (pr-str edn-file-map))
+    edn-file-map))
 
 
 
