@@ -2,6 +2,10 @@
 (import 'org.jsoup.Jsoup)
 
 
+(defn get-db-format []
+  (let [db-map-format {:db/id  "#db/id[:db.part/user]"}]
+    db-map-format))
+
 (defn get-category [full-menu]
   (for [element full-menu]
     (let [find-category (.select element "h3")
@@ -35,7 +39,8 @@
 (defn merge-name-price [item-name-map item-price-map]
   (let [item-name item-name-map
         item-price item-price-map
-        one-map (merge item-price item-name (get-db-format))]
+        db-format (get-db-format)
+        one-map (merge item-price item-name db-format)]
     one-map))
 
 (defn connect-url [restaurant-url]
@@ -48,7 +53,6 @@
         menu-tag (.getElementById website "menu")
         full-menu (.children menu-tag)]
     (seq full-menu)))
-
 
 (defn get-address-map [info]
   (let [address-line1 (.text (.get info 1))
@@ -63,7 +67,6 @@
         address-map (merge zipcode-map state-map city-map address-line1-map db-format)]
     address-map))
 
-
 (defn get-store-info [restaurant-url]
   (let [website (connect-url restaurant-url)
         store-name-tag (.select website "h1")
@@ -75,14 +78,8 @@
         final-address-map {:address address-map} 
         phone (.text (.last info))
         phone-map {:phone phone}
-        all-info (merge phone-map final-address-map store-name-map)]
+        all-info (merge store-name-map final-address-map phone-map)]
     all-info))
-
-
-(defn get-db-format []
-  (let [db-map-format {:db/id  "#db/id[:db.part/user]"}]
-    db-map-format))
-
 
 (defn get-menu-info [restaurant-url]
   (let [full-menu (pull-menu restaurant-url)
@@ -112,13 +109,14 @@
         catolog-map {:catalog catolog-info-map}
         db-format (get-db-format)
         edn-file-map (merge catolog-map store-info-map db-format)
-;        edn-file-string (str edn-file-map)
-;        edn-temp-one (clojure.string/replace edn-file-string #"\"#" "#")
-;        edn-temp-two (clojure.string/replace edn-temp-one #"user]\"" "user]") 
-;        edn-final (clojure.string/replace edn-temp-two #"," " ")
+        abc (pr-str edn-file-map)
+        edn-temp-one (clojure.string/replace abc #"\"#" "#")
+        edn-temp-two (clojure.string/replace edn-temp-one #"user]\"" "user]") 
+        edn-final (clojure.string/replace edn-temp-two #"," " ")
         ]
-    (spit "newmenu.txt" (pr-str edn-file-map))
-    edn-file-map))
+    (spit "newmenu.txt" edn-final)
+
+    edn-final))
 
 
 
