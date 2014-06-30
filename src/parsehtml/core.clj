@@ -85,7 +85,7 @@
   (let [full-menu (pull-menu restaurant-url)
         menu-category (get-category full-menu)
         num-categories (.size full-menu)
-        categories (range 0 num-categories)]
+        categories (range 0 2)]
     (for [i categories] 
       (let [category (nth full-menu i)
             category-name-map {:category/name (nth menu-category i)}
@@ -112,10 +112,9 @@
         abc (pr-str edn-file-map)
         edn-temp-one (clojure.string/replace abc #"\"#" "#")
         edn-temp-two (clojure.string/replace edn-temp-one #"user]\"" "user]") 
-        edn-final (clojure.string/replace edn-temp-two #"," " ")
-        ]
-    (spit "newmenu.txt" edn-final)
-
+        edn-x (clojure.string/replace edn-temp-two #"," " ")
+        edn-final (str \[ edn-x \])]
+    (spit "finalmenu.txt" edn-final)
     edn-final))
 
 
